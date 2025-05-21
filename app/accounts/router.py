@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from app.accounts.shemas import Cuentas, ActualizarNombreCuenta, ActualizarContrasenaCuenta, Entradas, Salidas
-from app.accounts.crud import create_account, list_account, update_name, update_password, delete_account, create_entry, create_outflows
+from app.accounts.shemas import Cuentas, ActualizarNombreCuenta, ActualizarContrasenaCuenta, Entradas, ActualizarEntrada, Salidas
+from app.accounts.crud import create_account, list_account, update_name, update_password, delete_account, create_entry, list_entry, list_one_entry, update_entry, create_outflows, delete_entry
 
-
+from typing import Optional
 router = APIRouter(prefix = "/accounts", tags = ["Cuentas"])
 
 @router.post("/create")
@@ -16,6 +16,7 @@ def createAccount(account : Cuentas):
 @router.get("/list")
 def listAccount():
     data = list_account()
+    
     if data: 
         return data
     else:
@@ -54,6 +55,10 @@ def deleteAccount(id : int):
         else:
             {"message": "No se devolvieron datos."}
 
+
+
+
+####            ENTRANCES 
 @router.post("/newEntry")
 def addEntry(entrance : Entradas):
     if entrance:
@@ -65,6 +70,49 @@ def addEntry(entrance : Entradas):
     else:
         return {"Message" : "Informacion de entrada incorrecta."}
     
+@router.get("/entryList")
+def listEntry(id : Optional[int] = None):
+    if id is not None:
+        data = list_one_entry(id)
+    elif id is None:
+        data = list_entry()
+    
+    if data:
+        return data
+    else:
+        return {"message": "No se devolvieron datos."}
+
+
+@router.put("/updateEntry/")
+def updateEntry(id: int, entrance: ActualizarEntrada):
+    if id:
+        entrance_EXIST = list_one_entry(id)
+        if entrance_EXIST is None:
+            return {"message": "Registro no encontrado"}
+
+        # Actualizar solo los campos proporcionados
+        update_data = entrance.dict()
+        print(update_data)
+        if update_data:
+            result = update_entry(id, update_data)
+            return result
+        else:
+            return {"message": "No se proporcionaron datos para actualizar."}
+    else:
+        return {"message": "Falta la ID o los datos son incorrectos."}
+        
+@router.delete("/deleteEntry")
+def deleteEntry(id):
+    if id:
+        data = delete_entry(id)
+        if data:
+            return data
+        else:
+            return {"message" : "no se devolvieron datos"}
+    else:
+        return {"message" : "Falta la id para poder realizar la consulta"}
+
+
 @router.post("/newExit")
 def addExit( outflows: Salidas):
     if outflows:

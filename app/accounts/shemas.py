@@ -16,7 +16,6 @@ class ActualizarNombreCuenta(BaseModel):
 class ActualizarContrasenaCuenta(BaseModel):
     contrasena : str
 
-
 class Entradas(BaseModel):
     origen : str
     fecha : datetime
@@ -24,6 +23,12 @@ class Entradas(BaseModel):
     detalle : Optional[str]
     fk_cuenta_id : int
     
+class ActualizarEntrada(BaseModel):
+    origen : Optional[str] = None
+    fecha : Optional[datetime] = None
+    cantidad : Optional[float] = None
+    detalle : Optional[str] = None
+    fk_cuenta_id : Optional[int] = None
 
 class Salidas(BaseModel):
     categoria : str
