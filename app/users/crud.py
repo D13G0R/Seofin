@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from db import getConnection
+from app.utils.hashPassword import hashing_password
 
 
 #Listar todos los usuarios
@@ -33,16 +34,20 @@ def list_user():
 #Crear un usuario
 def create_user(user):
     try:
+        hashed_password = hashing_password(user.contrasena)
+        hashed_password_account = hashing_password(user.contrasena_cuenta)
+
         conn = getConnection()
         cursor = conn.cursor()
+
         cursor.execute("""INSERT INTO usuarios(nombre, apellido, numero_identidad, correo, contrasena, contrasena_cuenta)
                     VALUES(%s, %s, %s, %s, %s, %s)""", (
                         user.nombre,
                         user.apellido,
                         user.numero_identidad,
                         user.correo,
-                        user.contrasena,
-                        user.contrasena_cuenta
+                        hashed_password,
+                        hashed_password_account
                         ))
         conn.commit()
 
@@ -79,9 +84,10 @@ def update_basic_data(user,  id):
 
 def update_password(password, id : int):
     try:
+        hashed_password = hashing_password(password)
         conn = getConnection()
         cursor = conn.cursor()
-        cursor.execute("""UPDATE usuarios SET contrasena = %s WHERE id = %s""", (password, id))
+        cursor.execute("""UPDATE usuarios SET contrasena = %s WHERE id = %s""", (hashed_password, id))
         conn.commit()
 
         if cursor.rowcount == 1:

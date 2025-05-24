@@ -3,6 +3,7 @@ from db import getConnection
 
 def create_account(account):
     try:
+        
         conn = getConnection()
         cursor = conn.cursor()
 
